@@ -3,7 +3,7 @@ let TaxiTrips = require("../taxi-trips");
 const pg = require("pg");
 const Pool = pg.Pool;
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://localhost:5432/my_balloon_tests';
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:Minenhle!28@localhost:5432/taxi_trips';
 
 const pool = new Pool({
     connectionString
@@ -19,8 +19,7 @@ describe('Taxi Trips', function () {
 
         const taxiTrips = TaxiTrips(pool);
 
-        assert.equal(0, taxiTrips.totalTripCount());
-    
+        assert.equal(18, await taxiTrips.totalTripCount());
 
     });
 
@@ -28,16 +27,16 @@ describe('Taxi Trips', function () {
 
         const taxiTrips = TaxiTrips(pool);
 
-        assert.deepStrictEqual([], taxiTrips.findAllRegions());
+        assert.deepStrictEqual([{'region_name': 'Durban'}, {'region_name': 'Cape Town'}, {'region_name': 'Gauteng'}], await taxiTrips.findAllRegions());
 
     });
 
     it('should find all the taxis for a region', async function () {
         const taxiTrips = TaxiTrips(pool);
 
-        assert.deepStrictEqual([], taxiTrips.findTaxisForRegion('Durban'));
-        assert.deepStrictEqual([], taxiTrips.findTaxisForRegion('Cape Town'));
-        assert.deepStrictEqual([], taxiTrips.findTaxisForRegion('Gauteng'));
+        assert.deepStrictEqual([{ reg_num: 'NUZ123123' },{ reg_num: 'NUR123123' },{ reg_num: 'NN123123' }], await taxiTrips.findTaxisForRegion('Durban'));
+        assert.deepStrictEqual([{ reg_num: 'CA123123' },{ reg_num: 'CA234234' },{ reg_num: 'CA345345' }], await taxiTrips.findTaxisForRegion('Cape Town'));
+        assert.deepStrictEqual([{ reg_num: 'GP123AB' },{ reg_num: 'GP234BC' },{ reg_num: 'GP345CD' }], await taxiTrips.findTaxisForRegion('Gauteng'));
 
     })
 
@@ -45,8 +44,8 @@ describe('Taxi Trips', function () {
 
         const taxiTrips = TaxiTrips(pool);
         
-        assert.deepStrictEqual([], taxiTrips.findTripsByRegNumber('...'));
-        assert.deepStrictEqual([], taxiTrips.findTripsByRegNumber('***'));
+        assert.deepStrictEqual([ { route_name: 'Cape Town-Khayelitsha' } ], await taxiTrips.findTripsByRegNumber('CA123123'));
+        assert.deepStrictEqual([ {route_name: 'Durban-KwaMashu'} ], await taxiTrips.findTripsByRegNumber('NUZ123123'));
 
     });
 
